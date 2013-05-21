@@ -15,7 +15,7 @@
 		
         CGSize winSize = [[CCDirector sharedDirector] winSize];
         
-        // Setup a background for the scene - dependent on device type 
+        // Setup a background for the scene - dependent on device type
 		if (winSize.width == 568) {
             CCLOG(@"Doing iPhone 5 placement");
             CCSprite * bg = [CCSprite spriteWithFile:@"credits-bg-ip5.png"];
@@ -149,6 +149,8 @@
         CCSprite *webSprite = [CCSprite spriteWithCGImage:imagefromURL.CGImage key:key];
         
         CCMenuItemImage *currentApp = [CCMenuItemImage itemWithNormalSprite:webSprite selectedSprite:nil target:self selector:@selector(openApp:)]; //To do: Pass in a URL to the app on appstore so that method uses right URL
+        // Every CCNode has a userData property - we can assign an NSObject to this
+        currentApp.userData = appURL; // Assign the App URL retrieved to the userdata
         
         CCLabelTTF *nameLabel = [CCLabelTTF labelWithString:name fontName:@"Helvetica-Bold" fontSize:18];
         nameLabel.color = ccBLACK;
@@ -157,7 +159,7 @@
         CCLabelTTF *descLabel = [CCLabelTTF labelWithString:description fontName:@"Helvetica-Bold" fontSize:12 dimensions:CGSizeMake(180,60) hAlignment:kCCTextAlignmentCenter lineBreakMode:kCCLineBreakModeWordWrap];
         descLabel.color = ccBLACK;
         descLabel.position = ccp(currentApp.contentSize.width/2, - 30);
-
+        
         [currentApp addChild:nameLabel];
         [currentApp addChild:descLabel];
         
@@ -191,13 +193,15 @@
 
 -(void)back: (id)sender {
 	CCLOG(@"back");
-    [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];	
+    [[CCDirector sharedDirector] replaceScene:[HelloWorldLayer scene]];
 }
 
--(void)openApp: (id)sender {
-    
-	CCLOG(@"Menu item tapped!");
+-(void)openApp:(CCMenuItemImage*)sender {
+    NSString *theURL = (NSString*)sender.userData; // Cast the userData as a string from the sending CCMenuItemImage
+	CCLOG(@"URL for this app is: %@", theURL);
     // Do something here like open the app in the app store...
+    // Note that this will only do something on an actual device (not in the sim)
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:theURL]];
 }
 
 - (void) dealloc
